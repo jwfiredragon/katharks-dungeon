@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        // Ensure only one GameManager instance exists
         if (instance == null)
         {
             instance = this;
@@ -17,8 +18,8 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
         DontDestroyOnLoad(gameObject);
+
         boardScript = GetComponent<BoardManager>();
         InitGame();
     }
