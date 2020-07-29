@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Enemy
+  - Skill Effect
+  - Floor
+  - Wall
+  - Hole
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - Entities
+  - Background
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Terrain
+    uniqueID: 786717491
+    locked: 0
+  - name: Characters
+    uniqueID: 1710126577
+    locked: 0
+  - name: Effects
+    uniqueID: 3989266585
+    locked: 0
+  - name: UI
+    uniqueID: 3972484733
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
