@@ -26,7 +26,7 @@ public class EntityHelper
     }
 
     // Fills grid with None entities
-    public void generateEntities(GridEntity[,] entitiesGrid)
+    public void resetEntities(GridEntity[,] entitiesGrid)
     {
         for (int x = 0; x < boardParams.cols; x++)
         {

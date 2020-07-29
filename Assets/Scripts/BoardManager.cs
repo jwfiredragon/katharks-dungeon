@@ -27,9 +27,7 @@ public class BoardManager : MonoBehaviour
 {
     BoardParams boardParams;
     TileHelper tileHelper;
-    GridTile[,] tilesGrid;
     EntityHelper entityHelper;
-    GridEntity[,] entitiesGrid;
 
     public GameObject[] floorTiles;
     public GameObject[] wallTiles;
@@ -37,23 +35,21 @@ public class BoardManager : MonoBehaviour
     public GameObject[] enemyEntities;
     public GameObject playerEntity;
 
-    public void setupBoard(BoardParams inBoardParams)
+    public void setupBoard(BoardParams inBoardParams, GridTile[,] tilesGrid, GridEntity[,] entitiesGrid)
     {
         boardParams = inBoardParams;
 
         tileHelper = new TileHelper(boardParams);
-        tilesGrid = new GridTile[boardParams.cols, boardParams.rows];
         entityHelper = new EntityHelper(boardParams);
-        entitiesGrid = new GridEntity[boardParams.cols, boardParams.rows];
 
         tileHelper.generateTiles(tilesGrid);
-        instantiateTiles();
-        instantiateBorder();
+        instantiateTiles(tilesGrid);
+        instantiateBorder(tilesGrid);
 
-        entityHelper.generateEntities(entitiesGrid);
+        entityHelper.resetEntities(entitiesGrid);
         entitiesGrid[0, 0].type = GridEntity.EntityType.Player;
         GameObject player = Instantiate(playerEntity, new Vector2(0, 0), Quaternion.identity);
-        instantiateEnemies();
+        instantiateEnemies(tilesGrid, entitiesGrid);
 
         GameObject.Find("Main Camera").transform.position = new Vector3((float)(boardParams.cols - 1) / 2, (float)(boardParams.rows - 1) / 2, -10);
     }
@@ -73,7 +69,7 @@ public class BoardManager : MonoBehaviour
     }
 
     // Instantiates the generated tiles.
-    void instantiateTiles()
+    void instantiateTiles(GridTile[,] tilesGrid)
     {
         GameObject RandomTile;
 
@@ -100,7 +96,7 @@ public class BoardManager : MonoBehaviour
     }
 
     // Generate a border of walls around the game field.
-    void instantiateBorder()
+    void instantiateBorder(GridTile[,] tilesGrid)
     {
         int i = 0;
         GameObject RandomTile;
@@ -127,7 +123,7 @@ public class BoardManager : MonoBehaviour
     }
 
     // Randomly instantiates enemies on the game field.
-    void instantiateEnemies()
+    void instantiateEnemies(GridTile[,] tilesGrid, GridEntity[,] entitiesGrid)
     {
         int enemiesLeft = boardParams.enemyCount;
 

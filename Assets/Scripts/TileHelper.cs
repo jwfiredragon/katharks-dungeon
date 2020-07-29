@@ -66,6 +66,8 @@ public class TileHelper
             traverseTiles(tilesGrid, 0, 0);
             pathCleared = clearPaths(tilesGrid);
         }
+
+        //printTiles(tilesGrid);
     }
 
     // Attempts to travel entire grid recursively, marking any visited tiles, and stopping traversal upon reaching a wall/hole or the map border.
@@ -216,5 +218,33 @@ public class TileHelper
                 tilesGrid[x, y].scratch = 0;
             }
         }
+    }
+
+    // Debug function to print current tile types
+    void printTiles(GridTile[,] tilesGrid)
+    {
+        string output = "";
+
+        for (int y = boardParams.rows - 1; y >= 0; y--)
+        {
+            for (int x = 0; x < boardParams.cols; x++)
+            {
+                if (tilesGrid[x, y].type == GridTile.TileType.Wall)
+                {
+                    output += "X";
+                }
+                else if (tilesGrid[x, y].type == GridTile.TileType.Hole)
+                {
+                    output += "O";
+                }
+                else
+                {
+                    output += "_";
+                }
+            }
+            output += "\n";
+        }
+
+        Debug.Log(output);
     }
 }

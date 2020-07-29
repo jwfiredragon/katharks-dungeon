@@ -7,6 +7,10 @@ public class GameManager : MonoBehaviour
     public static GameManager instance = null;
     public BoardManager boardScript;
 
+    BoardParams boardParams;
+    GridTile[,] tilesGrid;
+    GridEntity[,] entitiesGrid;
+
     void Awake()
     {
         // Ensure only one GameManager instance exists
@@ -27,7 +31,10 @@ public class GameManager : MonoBehaviour
     public void initGame()
     {
         boardScript.clearBoard();
-        boardScript.setupBoard(new BoardParams(8, 12, 20, 20, 5));
+        boardParams = new BoardParams(8, 12, 20, 20, 5);
+        tilesGrid = new GridTile[boardParams.cols, boardParams.rows];
+        entitiesGrid = new GridEntity[boardParams.cols, boardParams.rows];
+        boardScript.setupBoard(boardParams, tilesGrid, entitiesGrid);
     }
 
     public void moveEntities()
