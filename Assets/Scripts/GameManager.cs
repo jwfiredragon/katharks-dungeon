@@ -21,11 +21,29 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         boardScript = GetComponent<BoardManager>();
-        InitGame();
+        initGame();
     }
 
-    void InitGame()
+    public void initGame()
     {
-        boardScript.SetupBoard();
+        boardScript.clearBoard();
+        boardScript.setupBoard(new BoardParams(8, 12, 20, 20, 5));
+    }
+
+    public void moveEntities()
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach(GameObject enemy in enemies)
+        {
+            enemy.GetComponent<Enemy1>().move();
+        }
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        player.GetComponent<Player>().move();
+    }
+
+    public void quit()
+    {
+        Application.Quit();
     }
 }

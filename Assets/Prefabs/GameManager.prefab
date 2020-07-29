@@ -63,7 +63,7 @@ MonoBehaviour:
   - {fileID: 4043834408577123509, guid: c239aca8bd611a4479cabbca0a5fa05a, type: 3}
   holeTiles:
   - {fileID: 5451554353548339680, guid: c168fa47f5c37584596b670c30657462, type: 3}
-  enemyTiles:
+  enemyEntities:
   - {fileID: 9035408793492500328, guid: 4949b1824c8cb60429a5f3fa98203294, type: 3}
-  playerTile: {fileID: 782347838242008188, guid: 6b6f11834153c43409d08e008453ef04,
+  playerEntity: {fileID: 782347838242008188, guid: 6b6f11834153c43409d08e008453ef04,
     type: 3}

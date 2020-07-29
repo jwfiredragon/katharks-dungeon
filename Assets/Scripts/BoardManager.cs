@@ -5,47 +5,21 @@ using System.Data.Common;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class GridTile
-{
-    public enum TileType { Floor, Wall, Hole };
-
-    public TileType type;
-    public int scratch;
-
-    public GridTile(TileType inType)
-    {
-        type = inType;
-        scratch = 0;
-    }
-}
-
-public class GridEntity
-{
-    public enum EntityType { None, Player, Enemy };
-
-    public EntityType type;
-    public int scratch;
-
-    public GridEntity(EntityType inType)
-    {
-        type = inType;
-        scratch = 0;
-    }
-}
-
 public class BoardParams
 {
     public int rows;
     public int cols;
     public int wallPercent;
     public int holePercent;
+    public int enemyCount;
 
-    public BoardParams(int inRows, int inCols, int inWallPercent, int inHolePercent)
+    public BoardParams(int inRows, int inCols, int inWallPercent, int inHolePercent, int inEnemyCount)
     {
         rows = inRows;
         cols = inCols;
         wallPercent = inWallPercent;
         holePercent = inHolePercent;
+        enemyCount = inEnemyCount;
     }
 }
 
@@ -56,39 +30,47 @@ public class BoardManager : MonoBehaviour
     GridTile[,] tilesGrid;
     EntityHelper entityHelper;
     GridEntity[,] entitiesGrid;
-    int enemyCount;
 
     public GameObject[] floorTiles;
     public GameObject[] wallTiles;
     public GameObject[] holeTiles;
-    public GameObject[] enemyTiles;
-    public GameObject playerTile;
+    public GameObject[] enemyEntities;
+    public GameObject playerEntity;
 
-    public BoardManager()
+    public void setupBoard(BoardParams inBoardParams)
     {
-        boardParams = new BoardParams(8, 12, 20, 20);
+        boardParams = inBoardParams;
+
         tileHelper = new TileHelper(boardParams);
         tilesGrid = new GridTile[boardParams.cols, boardParams.rows];
         entityHelper = new EntityHelper(boardParams);
         entitiesGrid = new GridEntity[boardParams.cols, boardParams.rows];
-        enemyCount = 5;
-    }
 
-    public void SetupBoard()
-    {
         tileHelper.generateTiles(tilesGrid);
         instantiateTiles();
         instantiateBorder();
 
         entityHelper.generateEntities(entitiesGrid);
-        instantiateEnemies();
         entitiesGrid[0, 0].type = GridEntity.EntityType.Player;
-        Instantiate(playerTile, new Vector2(0, 0), Quaternion.identity);
+        GameObject player = Instantiate(playerEntity, new Vector2(0, 0), Quaternion.identity);
+        instantiateEnemies();
 
         GameObject.Find("Main Camera").transform.position = new Vector3((float)(boardParams.cols - 1) / 2, (float)(boardParams.rows - 1) / 2, -10);
     }
 
-    
+    // Clears all tiles and entities on board.
+    public void clearBoard()
+    {
+        GameObject[] gameObjArray = FindObjectsOfType<GameObject>();
+        foreach(GameObject obj in gameObjArray)
+        {
+            // Layer 8 is entites, layer 9 is tiles
+            if(obj.layer == 8 || obj.layer == 9)
+            {
+                Destroy(obj);
+            }
+        }
+    }
 
     // Instantiates the generated tiles.
     void instantiateTiles()
@@ -123,6 +105,7 @@ public class BoardManager : MonoBehaviour
         int i = 0;
         GameObject RandomTile;
 
+        // Generate left and right walls
         for (i = -1; i < boardParams.rows + 2; i++)
         {
             RandomTile = wallTiles[UnityEngine.Random.Range(0, wallTiles.Length)];
@@ -132,6 +115,7 @@ public class BoardManager : MonoBehaviour
             Instantiate(RandomTile, new Vector2(boardParams.cols, i), Quaternion.identity);
         }
 
+        // Generate top and bottom walls
         for (i = 0; i < boardParams.cols; i++)
         {
             RandomTile = wallTiles[UnityEngine.Random.Range(0, wallTiles.Length)];
@@ -145,18 +129,23 @@ public class BoardManager : MonoBehaviour
     // Randomly instantiates enemies on the game field.
     void instantiateEnemies()
     {
-        int enemiesLeft = enemyCount;
+        int enemiesLeft = boardParams.enemyCount;
 
         while (enemiesLeft > 0)
         {
-            int x = UnityEngine.Random.Range(0, boardParams.cols);
-            int y = UnityEngine.Random.Range(0, boardParams.rows);
+            // Start generating at x/y = 2 to prevent enemies from spawning too close to player
+            int x = UnityEngine.Random.Range(2, boardParams.cols);
+            int y = UnityEngine.Random.Range(2, boardParams.rows);
 
-            if (tilesGrid[x, y].type == GridTile.TileType.Floor)
+            // Enemies can only spawn on floor tiles with no entities on them
+            if (tilesGrid[x, y].type == GridTile.TileType.Floor && entitiesGrid[x, y].type == GridEntity.EntityType.None)
             {
+                // Add enemy to entity grid
                 entitiesGrid[x, y].type = GridEntity.EntityType.Enemy;
-                GameObject RandomEnemy = enemyTiles[UnityEngine.Random.Range(0, enemyTiles.Length)];
+                // Instantiate random enemy
+                GameObject RandomEnemy = enemyEntities[UnityEngine.Random.Range(0, enemyEntities.Length)];
                 Instantiate(RandomEnemy, new Vector2(x, y), Quaternion.identity);
+
                 enemiesLeft--;
             }
         }

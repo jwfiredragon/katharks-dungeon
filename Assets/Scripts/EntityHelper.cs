@@ -2,6 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class GridEntity
+{
+    public enum EntityType { None, Player, Enemy };
+
+    public EntityType type;
+    public int scratch;
+
+    public GridEntity(EntityType inType)
+    {
+        type = inType;
+        scratch = 0;
+    }
+}
+
 public class EntityHelper
 {
     BoardParams boardParams;

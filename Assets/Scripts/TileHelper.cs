@@ -2,6 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class GridTile
+{
+    public enum TileType { Floor, Wall, Hole };
+
+    public TileType type;
+    public int scratch;
+
+    public GridTile(TileType inType)
+    {
+        type = inType;
+        scratch = 0;
+    }
+}
+
 public class TileHelper
 {
     BoardParams boardParams;
@@ -15,6 +29,7 @@ public class TileHelper
     // Also ensures that all floor tiles are connected to each other by turning walls/holes into floors as necessary.
     public void generateTiles(GridTile[,] tilesGrid)
     {
+        // Randomly generate tile type for all tiles
         for (int x = 0; x < boardParams.cols; x++)
         {
             for (int y = 0; y < boardParams.rows; y++)
@@ -39,11 +54,17 @@ public class TileHelper
         // Ensure that bottom left tile (player spawn) is a floor
         tilesGrid[0, 0].type = GridTile.TileType.Floor;
 
+        // Repeatedly traverse and check tiles until all floor tiles are visitable from the spawn
+        bool pathCleared = true;
         while (!checkTiles(tilesGrid))
         {
+            if (!pathCleared)
+            {
+                forceClearPath(tilesGrid);
+            }
             unmarkTiles(tilesGrid);
             traverseTiles(tilesGrid, 0, 0);
-            clearPaths(tilesGrid);
+            pathCleared = clearPaths(tilesGrid);
         }
     }
 
@@ -87,8 +108,11 @@ public class TileHelper
     }
 
     // Delete any visited wall/hole tiles that border unvisited floor tiles.
-    void clearPaths(GridTile[,] tilesGrid)
+    // Returns true if at least one tile was deleted and false otherwise.
+    bool clearPaths(GridTile[,] tilesGrid)
     {
+        bool tileCleared = false;
+
         for (int x = 0; x < boardParams.cols; x++)
         {
             for (int y = 0; y < boardParams.rows; y++)
@@ -98,26 +122,68 @@ public class TileHelper
                     if (x + 1 <= boardParams.cols - 1 && tilesGrid[x + 1, y].type == GridTile.TileType.Floor && tilesGrid[x + 1, y].scratch == 0)
                     {
                         tilesGrid[x, y].type = GridTile.TileType.Floor;
+                        tileCleared = true;
                         break;
                     }
                     else if (y + 1 <= boardParams.rows - 1 && tilesGrid[x, y + 1].type == GridTile.TileType.Floor && tilesGrid[x, y + 1].scratch == 0)
                     {
                         tilesGrid[x, y].type = GridTile.TileType.Floor;
+                        tileCleared = true;
                         break;
                     }
                     else if (x - 1 >= 0 && tilesGrid[x - 1, y].type == GridTile.TileType.Floor && tilesGrid[x - 1, y].scratch == 0)
                     {
                         tilesGrid[x, y].type = GridTile.TileType.Floor;
+                        tileCleared = true;
                         break;
                     }
                     else if (y - 1 >= 0 && tilesGrid[x, y - 1].type == GridTile.TileType.Floor && tilesGrid[x, y - 1].scratch == 0)
                     {
                         tilesGrid[x, y].type = GridTile.TileType.Floor;
+                        tileCleared = true;
                         break;
                     }
                 }
             }
         }
+
+        return tileCleared;
+    }
+
+    // Deletes the first wall/hole bordering an univisited tile found.
+    void forceClearPath(GridTile[,] tilesGrid)
+    {
+        for (int x = 0; x < boardParams.cols; x++)
+        {
+            for (int y = 0; y < boardParams.rows; y++)
+            {
+                if (tilesGrid[x, y].scratch == 1 && (tilesGrid[x, y].type == GridTile.TileType.Wall || tilesGrid[x, y].type == GridTile.TileType.Hole))
+                {
+                    if (x + 1 <= boardParams.cols - 1 && tilesGrid[x + 1, y].scratch == 0)
+                    {
+                        tilesGrid[x, y].type = GridTile.TileType.Floor;
+                        return;
+                    }
+                    else if (y + 1 <= boardParams.rows - 1 && tilesGrid[x, y + 1].scratch == 0)
+                    {
+                        tilesGrid[x, y].type = GridTile.TileType.Floor;
+                        return;
+                    }
+                    else if (x - 1 >= 0 && tilesGrid[x - 1, y].scratch == 0)
+                    {
+                        tilesGrid[x, y].type = GridTile.TileType.Floor;
+                        return;
+                    }
+                    else if (y - 1 >= 0 && tilesGrid[x, y - 1].scratch == 0)
+                    {
+                        tilesGrid[x, y].type = GridTile.TileType.Floor;
+                        return;
+                    }
+                }
+            }
+        }
+
+        return;
     }
 
     // Returns true if all floor tiles on the map have been visited and false otherwise.
